@@ -1,9 +1,54 @@
 <html>
+    <meta charset="utf-8">
     <head>
         <script src='web3src/web3.min.js'></script>
         <script type="text/javascript" src="web3src/abilist.js">  </script>
         <script type="text/javascript">
+            var namereg = null;
 
+            window.addEventListener('load', entry);
+
+            async function entry() {
+                if (window.ethereum) {
+                    window.accounts = await ethereum.request({ method : "eth_requestAccounts" });
+                    window.web3 = new Web3(window.ethereum);
+
+                    var address = "0x29E83221aBF1B5725f841E0cd8E0a6C0F4B5DB23";	// address of nameregistry
+                    namereg = await new window.web3.eth.Contract(nameregistryabi, address);
+                }
+                else if (window.web3) {
+                    window.web3 = new Web3(web3.currentProvider);
+                }
+                else {
+                    console.log('Non-Ethereum browser detected. You should consider trying MetaMask!');
+                    window.web3 = null
+                }
+                registerEventHandlers();
+            }
+
+            function registerEventHandlers() {
+                let btn = document.getElementById("selectbutton");
+                btn.addEventListener('click', goToAuctionPage);
+            }
+
+            async function goToAuctionPage() {
+                var itemname = document.getElementById("itemname").value;
+                try {
+                    var address = await namereg.methods.getAddr(itemname).call();
+                    if (address != 0) {
+                        window.location.href = "auctionpage.html?itemname=" + itemname +
+                                             "&address=" + address;
+                    }
+                    else {
+                        let exceptionbox = document.getElementById("exceptionbox");
+                        exceptionbox.innerHTML = "해당 물품은 경매중이 아닙니다!"
+                    }
+                }
+                catch (error) {
+                    console.log(error);
+                    alert(error);
+                }
+            }
         </script>
     </head>
 
@@ -17,6 +62,6 @@
         Auction Item Name : <input type="text" id="itemname" value="">
         <input type="button" id="selectbutton" value="select!">
         <br/>
-        <br/>
+        <span id="exceptionbox"></span>
     </body>
 </html>
