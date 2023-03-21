@@ -1,0 +1,53 @@
+<html>
+
+<head>
+    <script src='web3src/web3.min.js'></script>
+    <script type="text/javascript" src="web3src/abilist.js">  </script>
+    <script type="text/javascript">
+        var accounts = null;
+        var cfcontractInstance = null;
+        var resultbox = null;
+        var namereg = null;
+
+        window.addEventListener('load', action);
+
+        async function action() {
+            if (window.ethereum) {
+
+                window.accounts = await ethereum.request({ method: 'eth_requestAccounts' });
+
+                window.web3 = new Web3(window.ethereum);
+
+                var address = "0x0D5D89Aae8A58239852DcAf216EFA12Ac69575F4";	// address of nameregistry
+                namereg = await new window.web3.eth.Contract(nameregistryabi, address);
+
+                // Legacy dapp browsers...
+            } else if (window.web3) {
+                window.web3 = new Web3(web3.currentProvider);
+                // Acccounts always exposed
+                //    web3.eth.sendTransaction({/* ... */});
+            }
+            // Non-dapp browsers...
+            else {
+                console.log('Non-Ethereum browser detected. You should consider trying MetaMask!');
+                window.web3 = null
+            }
+            registerEventHandlers();
+        }
+
+        function registerEventHandlers() {
+            let btn = document.getElementById("testbutton");
+            btn.addEventListener('click', clickTestButton);
+        }
+
+        async function clickTestButton() {
+            alert("clicked test button");
+        }
+        
+    </script>
+</head>
+<body>
+    <h1>This is Auction page</h1>
+    <input type="button" id="testbutton" value="test">
+</body>
+</html>

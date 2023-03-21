@@ -14,7 +14,7 @@ async function crowdfund() {
   if (window.ethereum) {
 
     window.accounts = await ethereum.request({ method: 'eth_requestAccounts' });
-   
+    
     //var address = "0xe5028Fc0600B3354BA1b434215767003cf8b1F09";
     window.web3 = new Web3(window.ethereum);
 
@@ -86,7 +86,6 @@ async function selectFund() {
   let fundname = valtxt.value;
   //alert(fundname);
   getCrowdFundInstance(fundname);
-
 }
 
 async function checkGoalReached() {
