@@ -18,7 +18,7 @@ contract auction {
 
     function Bid() payable public {
         require(msg.value > highestBid);
-        require(end == false);
+        require(!isEnd());
 
         uint refundAmmount = highestBid;
         address refundAddress = highestBidder;
@@ -31,15 +31,20 @@ contract auction {
         }
     }
 
-    function endAuction() public returns(bool) {
-        if (block.timestamp <= deadline) {
-            return false;
+    function isEnd() public returns(bool) {
+        end = (block.timestamp > deadline);
+        return end;
+    }
+
+    function endAuction() public {
+        if (end == false) {
+            revert();
         }
-        end = true;
 
         if (!payable(owner).send(address(this).balance)) {
             revert();
         }
-        return true;
+
+        selfdestruct(payable(owner));
     }
 }

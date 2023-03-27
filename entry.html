@@ -13,8 +13,10 @@
                     window.accounts = await ethereum.request({ method : "eth_requestAccounts" });
                     window.web3 = new Web3(window.ethereum);
 
-                    var address = "0x3F863AefBA661DbD74905a274bA3269ad3730346";	// address of nameregistry
+                    var address = "0xD5687e36e0579739028004D873FD7848A3Cb62Ad";	// address of nameregistry
                     namereg = await new window.web3.eth.Contract(nameregistryabi, address);
+
+                    
                 }
                 else if (window.web3) {
                     window.web3 = new Web3(web3.currentProvider);

@@ -4,24 +4,54 @@
     <script src='web3.min.js'></script>
     <script type="text/javascript" src="abilist.js">  </script>
     <script type="text/javascript">
+        var highestbidBox;
         var aucontractInstance = null;
         var namereg = null;
         var itemname = new URLSearchParams(window.location.search).get("itemname");
-        var address = new URLSearchParams(window.location.search).get("address");
+        var itemAddr = new URLSearchParams(window.location.search).get("address");
 
         window.addEventListener('load', auction);
 
         async function auction() {
+            if (itemname == null || itemAddr == null)
+            {
+                alert("Item or ItemAddress is null");
+                window.location.href = "entry.html";
+            }
             if (window.ethereum) {
                 window.accounts = await ethereum.request({ method: 'eth_requestAccounts' });
 
                 window.web3 = new Web3(window.ethereum);
 
-                var address = "0x3F863AefBA661DbD74905a274bA3269ad3730346";	// address of nameregistry
+                var address = "0xD5687e36e0579739028004D873FD7848A3Cb62Ad";	// address of nameregistry
                 namereg = await new window.web3.eth.Contract(nameregistryabi, address);
 
-                aucontractInstance = await new window.web3.eth.Contract(auctionAbi, address);
+                let checkItemAddr = await namereg.methods.getAddr(itemname).call();
 
+                if (itemAddr != checkItemAddr)
+                {
+                    alert("Wrong Item name or Item Address.");
+                    window.location.href = "entry.html";
+                }
+
+                aucontractInstance = await new window.web3.eth.Contract(auctionAbi, itemAddr);
+                if (aucontractInstance == null)
+                {
+                    alert("aucontractInstance is null");
+                }
+
+                let itemnameBox = document.getElementById("itemnameBox")
+                let itemDescriptionBox = document.getElementById("itemDescriptionBox");
+                let deadlineBox = document.getElementById("deadlineBox");
+                highestbidBox = document.getElementById("highestbidBox");
+
+                itemnameBox.innerHTML = itemname;
+                itemDescriptionBox.innerHTML = await namereg.methods.getDescription(itemname).call();
+                highestbidBox.innerHTML = await aucontractInstance.methods.highestBid().call();
+                
+                let deadlinevalue = await aucontractInstance.methods.deadline().call();
+                let date = new Date(parseInt(deadlinevalue) * 1000);
+                deadlineBox.innerHTML = date;
                 // Legacy dapp browsers...
             } else if (window.web3) {
                 window.web3 = new Web3(web3.currentProvider);
@@ -37,20 +67,87 @@
         }
 
         function registerEventHandlers() {
-            let btn = document.getElementById("testbutton");
-            btn.addEventListener('click', clickTestButton);
+            let btn = document.getElementById("bidButton");
+            btn.addEventListener('click', clickBidButton);
+            
+            btn = document.getElementById("checkButton");
+            btn.addEventListener('click', clickCheckButton);
         }
 
-        async function clickTestButton() {
-            alert("clicked test button");
+        async function clickBidButton() {
+            if (aucontractInstance != null) {
+                try {
+                    let val = document.getElementById("bidAmount").value;
+                    if (val <= highestbidBox.innerHTML)
+                    {
+                        alert("lower than highest bid");
+                    }
+                    else if (val == "" || val < 10000000000000)
+                    {
+                        alert("bid amount is least 0.1ether");
+                    }
+                    else {
+                        let value = await aucontractInstance.methods.Bid().send({ from: accounts[0], value: val });
+                        highestbidBox.innerHTML = val;
+                    }
+                } catch (error) {
+                    alert("error occured at clickBidButton");
+                    alert(error);
+                    console.log(error);
+                }
+            }
+        }
+
+        async function clickCheckButton() {
+            if (aucontractInstance != null) {
+                try {
+                    let isEnd = await aucontractInstance.methods.endAuction().send({ from: accounts[0] });
+                    if (isEnd == false) {
+                        let winningbidderBox = document.getElementById("winningbidderBox");
+                        winningbidderBox.innerHTML = "The auction is still ongoing.";
+
+                        let highestbidBox = document.getElementById("winningBidBox");
+                        highestbidBox.innerHTML = "";
+                    }
+                    else {
+                        let winningBidder = await aucontractInstance.methods.highestBidder().call();
+                        let highestBidval = await aucontractInstance.methods.highestBid().call();
+
+                        let winningbidderBox = document.getElementById("winningbidderBox");
+                        winningbidderBox.innerHTML = "Winner : " + winningBidder;
+
+                        let highestbidBox = document.getElementById("winningBidBox");
+                        highestbidBox.innerHTML = "Winning Price : " + highestBidval;
+                    }
+                }
+                catch (error) {
+                    alert("error occured at clickCheckButton");
+                    //alert(error);
+                    console.log(error);
+                }
+            }
         }
         
     </script>
 </head>
 <body>
     <h1>This is Auction page</h1>
-    <h2>Item Name : <span id="itemnameBox"\></span></h2>
-    <input type="button" id="testbutton" value="test">
+    <br/>
+    <h3>Item Name : <span id="itemnameBox"\></span></h3>
+    <h3>Item Description : <span id="itemDescriptionBox"></span></h3>
+    <h3>Current Highest Bid : <span id="highestbidBox"></span> Wei</h3>
+    <h3>Deadline : <span id="deadlineBox"></span></h3>
+    <br/>
+    <input type="button" style="width:100px; height:50px;" id="bidButton" value="Bid!">
+    Amount: <input type="text" id="bidAmount" value=""> Wei
+    <br/>
+    <br/>
+    <input type="button" style="width:150px; height:50px;" id="checkButton" value="Check Winning Bidder">
+    <br/>
+    <br/>
+    <span id="winningbidderBox"></span>
+    <br/>
+    <span id="winningBidBox"></span>
 
 </body>
 </html>
