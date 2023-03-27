@@ -17,8 +17,10 @@
 
                 window.web3 = new Web3(window.ethereum);
 
-                var address = "0x29E83221aBF1B5725f841E0cd8E0a6C0F4B5DB23";	// address of nameregistry
+                var address = "0x5598E5A12Fde287785B539447eaE790C064EE8F4";	// address of nameregistry
                 namereg = await new window.web3.eth.Contract(nameregistryabi, address);
+
+                aucontractInstance = await new window.web3.eth.Contract(auctionAbi, address);
 
                 // Legacy dapp browsers...
             } else if (window.web3) {
