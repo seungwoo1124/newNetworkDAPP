@@ -1,8 +1,8 @@
 <html>
 
 <head>
-    <script src='web3src/web3.min.js'></script>
-    <script type="text/javascript" src="web3src/abilist.js">  </script>
+    <script src='web3.min.js'></script>
+    <script type="text/javascript" src="abilist.js">  </script>
     <script type="text/javascript">
         var aucontractInstance = null;
         var namereg = null;
@@ -17,7 +17,7 @@
 
                 window.web3 = new Web3(window.ethereum);
 
-                var address = "0x5598E5A12Fde287785B539447eaE790C064EE8F4";	// address of nameregistry
+                var address = "0x3F863AefBA661DbD74905a274bA3269ad3730346";	// address of nameregistry
                 namereg = await new window.web3.eth.Contract(nameregistryabi, address);
 
                 aucontractInstance = await new window.web3.eth.Contract(auctionAbi, address);
@@ -49,6 +49,8 @@
 </head>
 <body>
     <h1>This is Auction page</h1>
+    <h2>Item Name : <span id="itemnameBox"\></span></h2>
     <input type="button" id="testbutton" value="test">
+
 </body>
 </html>
