@@ -17,14 +17,14 @@
             if (itemname == null || itemAddr == null)
             {
                 alert("Item or ItemAddress is null");
-                window.location.href = "entry.html";
+                window.location.href = "SeungwooJeong.html";
             }
             if (window.ethereum) {
                 window.accounts = await ethereum.request({ method: 'eth_requestAccounts' });
 
                 window.web3 = new Web3(window.ethereum);
 
-                var address = "0xe60AFf4106CCC2fe437Bd5a610FbAc3fE85F9fB3";	// address of nameregistry
+                var address = "0x12AaF8da8457Fefdc3a61D4E2970c0427a345de8";	// address of nameregistry
                 namereg = await new window.web3.eth.Contract(nameregistryabi, address);
 
                 let checkItemAddr = await namereg.methods.getAddr(itemname).call();
@@ -32,7 +32,7 @@
                 if (itemAddr != checkItemAddr)
                 {
                     alert("Wrong Item name or Item Address.");
-                    window.location.href = "entry.html";
+                    window.location.href = "SeungwooJeong.html";
                 }
 
                 aucontractInstance = await new window.web3.eth.Contract(auctionAbi, itemAddr);
